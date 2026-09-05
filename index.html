@@ -151,11 +151,11 @@ und arbeiten ihn Schritt für Schritt ab.</p>
       <option value="bug-hunter">bug-hunter – Fehler finden und beheben</option>
       <option value="code-checker">code-checker – Code prüfen, ohne ihn zu ändern</option>
       <option value="web-game-dev">web-game-dev – Browser-Spiel: Logik, Grafik, Steuerung</option>
+      <option value="webseiten-bauer">webseiten-bauer – ganze Webseiten bauen</option>
       <option value="erklaerbaer">erklaerbaer – Code oder Fehlermeldung erklären</option>
       <option value="aufraeumer">aufraeumer – Code aufräumen, Verhalten bleibt gleich</option>
       <option value="planer">planer – grosses Vorhaben in Schritte zerlegen</option>
       <option value="test-schreiber">test-schreiber – Tests schreiben, die Fehler finden</option>
-      <option value="webseiten-bauer">webseiten-bauer – ganze Webseiten bauen</option>
     </select>
   </div>
 
@@ -252,6 +252,28 @@ und arbeiten ihn Schritt für Schritt ab.</p>
 </details>
 
 <details class="agent">
+  <summary><span class="name">webseiten-bauer</span><span class="what">Ganze Webseiten bauen</span></summary>
+  <div class="body">
+    <p>Baut Webseiten – fertig, ansehnlich und ohne unnötige Technik. Eine einzelne <code>index.html</code>
+    mit eigenem CSS reicht für fast alles: kein React, kein Build-Werkzeug, kein npm.
+    Eine Seite, die man mit Doppelklick öffnen kann, ist das Ziel.</p>
+    <p><strong>Vorgehen:</strong></p>
+    <ol>
+      <li>Zweck klären: wofür ist die Seite, wer schaut sie an, was soll die Person tun können?</li>
+      <li>Bestehendes übernehmen – Farben, Schriften und Struktur vorhandener Seiten, statt einen zweiten Stil danebenzustellen.</li>
+      <li>Bauen: Inhalt zuerst, dann Aussehen. Echte Texte, kein „Lorem ipsum“.</li>
+      <li>Im Browser prüfen: Konsole auf Fehler, schmale Ansicht testen, Screenshot zeigen.</li>
+    </ol>
+    <p><strong>Handwerk:</strong> echte HTML-Elemente statt überall <code>div</code>; Abstände über Flexbox
+    und Grid mit <code>gap</code>; Handy von Anfang an mitgedacht; Farben als Variablen in <code>:root</code>
+    mit Dunkelmodus darüber; <code>alt</code>-Texte, sichtbarer Fokusrahmen, <code>label</code> an jedem Feld;
+    sparsam mit Effekten.</p>
+    <p><strong>Ins Netz:</strong> kennt den Weg über GitHub Pages – und schreibt nie Passwörter oder
+    Schlüssel in eine Seite, die veröffentlicht wird.</p>
+  </div>
+</details>
+
+<details class="agent">
   <summary><span class="name">erklaerbaer</span><span class="what">Erklärt Code und Fehlermeldungen einfach</span></summary>
   <div class="body">
     <p>Erklärt Programmierung verständlich auf Deutsch – ohne unnötige Fachbegriffe, und wenn ein Fachbegriff nötig ist, wird er beim ersten Mal erklärt.</p>
@@ -305,28 +327,6 @@ und arbeiten ihn Schritt für Schritt ab.</p>
       <li>Schlägt ein Test fehl: prüfen, ob der Test falsch ist oder der Code. Nie den Test verbiegen, damit er grün wird.</li>
     </ol>
     <p><strong>Regeln:</strong> Testnamen sagen auf Deutsch, was geprüft wird. Logik vor Grafik – schwer testbare Teile lieber herauslösen.</p>
-  </div>
-</details>
-
-<details class="agent">
-  <summary><span class="name">webseiten-bauer</span><span class="what">Ganze Webseiten bauen</span></summary>
-  <div class="body">
-    <p>Baut Webseiten – fertig, ansehnlich und ohne unnötige Technik. Eine einzelne <code>index.html</code>
-    mit eigenem CSS reicht für fast alles: kein React, kein Build-Werkzeug, kein npm.
-    Eine Seite, die man mit Doppelklick öffnen kann, ist das Ziel.</p>
-    <p><strong>Vorgehen:</strong></p>
-    <ol>
-      <li>Zweck klären: wofür ist die Seite, wer schaut sie an, was soll die Person tun können?</li>
-      <li>Bestehendes übernehmen – Farben, Schriften und Struktur vorhandener Seiten, statt einen zweiten Stil danebenzustellen.</li>
-      <li>Bauen: Inhalt zuerst, dann Aussehen. Echte Texte, kein „Lorem ipsum“.</li>
-      <li>Im Browser prüfen: Konsole auf Fehler, schmale Ansicht testen, Screenshot zeigen.</li>
-    </ol>
-    <p><strong>Handwerk:</strong> echte HTML-Elemente statt überall <code>div</code>; Abstände über Flexbox
-    und Grid mit <code>gap</code>; Handy von Anfang an mitgedacht; Farben als Variablen in <code>:root</code>
-    mit Dunkelmodus darüber; <code>alt</code>-Texte, sichtbarer Fokusrahmen, <code>label</code> an jedem Feld;
-    sparsam mit Effekten.</p>
-    <p><strong>Ins Netz:</strong> kennt den Weg über GitHub Pages – und schreibt nie Passwörter oder
-    Schlüssel in eine Seite, die veröffentlicht wird.</p>
   </div>
 </details>
 

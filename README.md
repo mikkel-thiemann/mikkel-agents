@@ -14,11 +14,11 @@ auf Deutsch, ausgelegt auf schlanke Web- und Browser-Spiel-Projekte (Vanilla JS,
 | **bug-hunter** | Sucht Fehler und behebt die Ursache, nicht das Symptom. |
 | **code-checker** | Review ohne Änderungen: echte Bugs, Sicherheit, Performance, Vereinfachung. |
 | **web-game-dev** | Browser-Spiele: Spiellogik, Canvas/Three.js, Steuerung, Delta-Zeit, Performance. |
+| **webseiten-bauer** | Baut ganze Webseiten mit HTML, CSS und JavaScript – ohne Build-Werkzeuge. |
 | **erklaerbaer** | Erklärt Code und Fehlermeldungen einfach und verständlich. |
 | **aufraeumer** | Refactoring bei exakt gleichem Verhalten. |
 | **planer** | Zerlegt grosse Vorhaben in Schritte, bevor gebaut wird. |
 | **test-schreiber** | Schreibt Tests, die echte Fehler finden, und lässt sie laufen. |
-| **webseiten-bauer** | Baut ganze Webseiten mit HTML, CSS und JavaScript – ohne Build-Werkzeuge. |
 
 Für grössere Vorhaben – mehrere Dateien, mehrere Schritte – planen die arbeitenden Agenten
 zuerst und arbeiten den Plan dann Schritt für Schritt ab.
