@@ -58,6 +58,46 @@
     overflow-x: auto; border: 1px solid var(--line);
   }
   pre code { background: none; padding: 0; }
+  /* Aufgaben-Baukasten */
+  .builder {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 22px;
+  }
+  .builder label {
+    display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 7px;
+  }
+  .builder select, .builder textarea {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--bg); color: var(--text);
+    font: inherit; font-size: 0.95rem;
+  }
+  .builder select:focus, .builder textarea:focus {
+    outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent;
+  }
+  .builder textarea { resize: vertical; min-height: 86px; }
+  .field { margin-bottom: 18px; }
+  .hint { color: var(--muted); font-size: 0.86rem; margin: 7px 0 0; }
+  .beispiele { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .beispiele button {
+    font: inherit; font-size: 0.82rem; padding: 5px 11px; cursor: pointer;
+    border: 1px dashed var(--line); border-radius: 999px;
+    background: none; color: var(--muted);
+  }
+  .beispiele button:hover { border-color: var(--accent); color: var(--accent); border-style: solid; }
+  .ergebnis {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; white-space: pre-wrap; word-break: break-word;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.88rem; min-height: 46px;
+  }
+  .ergebnis.leer { color: var(--muted); font-style: italic; font-family: inherit; }
+  .knopf {
+    font: inherit; font-weight: 600; font-size: 0.92rem; cursor: pointer;
+    margin-top: 12px; padding: 10px 18px; border-radius: 8px;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  }
+  .knopf:hover { filter: brightness(1.08); }
+  .knopf:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
   footer {
     margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line);
     color: var(--muted); font-size: 0.88rem;
@@ -77,6 +117,48 @@
     <a href="https://github.com/mikkel-thiemann/mikkel-agents/archive/refs/heads/main.zip">Als ZIP laden</a>
   </p>
 </header>
+
+<h2>Aufgabe an einen Agenten geben</h2>
+<p style="color:var(--muted);margin-top:-6px">Agent wählen, Aufgabe beschreiben, Befehl kopieren – und in Claude Code einfügen.</p>
+
+<div class="builder">
+  <div class="field">
+    <label for="agent">1. Welcher Agent?</label>
+    <select id="agent">
+      <option value="feature-builder">feature-builder – neues Feature komplett bauen</option>
+      <option value="bug-hunter">bug-hunter – Fehler finden und beheben</option>
+      <option value="code-checker">code-checker – Code prüfen, ohne ihn zu ändern</option>
+      <option value="web-game-dev">web-game-dev – Browser-Spiel: Logik, Grafik, Steuerung</option>
+      <option value="erklaerbaer">erklaerbaer – Code oder Fehlermeldung erklären</option>
+      <option value="aufraeumer">aufraeumer – Code aufräumen, Verhalten bleibt gleich</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="projekt">2. In welchem Projekt oder welcher Datei? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+    <select id="projekt">
+      <option value="">– keine Angabe –</option>
+      <option>MikkelRacer</option>
+      <option>starwars-voxel-world</option>
+      <option>swiss-smp</option>
+      <option>weltenkaempfer</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="aufgabe">3. Was soll gemacht werden?</label>
+    <textarea id="aufgabe" placeholder="z. B. Beim Aufprall auf die Wand soll das Auto abprallen statt hängenzubleiben"></textarea>
+    <p class="hint">Je genauer, desto besser: Was passiert jetzt, was soll stattdessen passieren?</p>
+    <div class="beispiele" id="beispiele"></div>
+  </div>
+
+  <div class="field" style="margin-bottom:0">
+    <label for="ergebnis">4. Fertiger Befehl</label>
+    <div class="ergebnis leer" id="ergebnis">Wird angezeigt, sobald du oben etwas eingibst.</div>
+    <button class="knopf" id="kopieren" disabled>Kopieren</button>
+    <p class="hint">In Claude Code einfügen – im Terminal oder direkt im Chat.</p>
+  </div>
+</div>
 
 <h2>Die Agenten</h2>
 <p style="color:var(--muted);margin-top:-6px">Auf einen Agenten klicken, um seinen kompletten Prompt zu sehen.</p>
@@ -211,5 +293,106 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 </footer>
 
 </div>
+
+<script>
+  // Beispielaufgaben je Agent - zum Reinklicken, damit man nicht vor einem leeren Feld sitzt.
+  const BEISPIELE = {
+    "feature-builder": [
+      "Baue eine Highscore-Liste ein, die im Browser gespeichert bleibt",
+      "Füge ein Startmenü mit Knopf „Spiel starten“ hinzu",
+      "Baue einen Pause-Modus mit der Taste P"
+    ],
+    "bug-hunter": [
+      "Das Spiel bleibt nach einem Neustart schwarz",
+      "In der Konsole steht „Cannot read properties of undefined“",
+      "Die Steuerung reagiert manchmal nicht auf Tastendruck"
+    ],
+    "code-checker": [
+      "Prüfe das ganze Projekt vor dem Veröffentlichen",
+      "Schau dir die Hauptdatei auf Fehler und Performance an",
+      "Prüfe, ob irgendwo Passwörter oder Schlüssel im Code stehen"
+    ],
+    "web-game-dev": [
+      "Baue einen Doppelsprung ein",
+      "Das Spiel ruckelt - finde heraus warum und mach es flüssiger",
+      "Die Kamera soll der Spielfigur weich folgen"
+    ],
+    "erklaerbaer": [
+      "Erkläre mir, was die Hauptdatei macht",
+      "Was bedeutet diese Fehlermeldung?",
+      "Wie funktioniert die Kollisionsprüfung in diesem Projekt?"
+    ],
+    "aufraeumer": [
+      "Räume die Hauptdatei auf, sie ist zu lang geworden",
+      "Fasse den doppelten Code zusammen",
+      "Gib den Variablen bessere Namen"
+    ]
+  };
+
+  const agentEl = document.getElementById("agent");
+  const projektEl = document.getElementById("projekt");
+  const aufgabeEl = document.getElementById("aufgabe");
+  const ergebnisEl = document.getElementById("ergebnis");
+  const kopierenEl = document.getElementById("kopieren");
+  const beispieleEl = document.getElementById("beispiele");
+
+  function beispieleZeigen() {
+    beispieleEl.replaceChildren();
+    for (const text of BEISPIELE[agentEl.value]) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = text;
+      b.addEventListener("click", () => { aufgabeEl.value = text; aktualisieren(); });
+      beispieleEl.appendChild(b);
+    }
+  }
+
+  function befehlBauen() {
+    const aufgabe = aufgabeEl.value.trim();
+    if (!aufgabe) return "";
+    const projekt = projektEl.value;
+    const ort = projekt ? " in " + projekt : "";
+    return agentEl.value + ": " + aufgabe + ort;
+  }
+
+  function aktualisieren() {
+    const befehl = befehlBauen();
+    if (befehl) {
+      ergebnisEl.textContent = befehl;
+      ergebnisEl.classList.remove("leer");
+      kopierenEl.disabled = false;
+    } else {
+      ergebnisEl.textContent = "Wird angezeigt, sobald du oben etwas eingibst.";
+      ergebnisEl.classList.add("leer");
+      kopierenEl.disabled = true;
+    }
+    kopierenEl.textContent = "Kopieren";
+  }
+
+  kopierenEl.addEventListener("click", async () => {
+    const befehl = befehlBauen();
+    if (!befehl) return;
+    try {
+      await navigator.clipboard.writeText(befehl);
+      kopierenEl.textContent = "Kopiert ✓";
+    } catch {
+      // Zwischenablage gesperrt (z. B. ohne HTTPS): Text markieren, damit man von Hand kopieren kann.
+      const auswahl = window.getSelection();
+      const bereich = document.createRange();
+      bereich.selectNodeContents(ergebnisEl);
+      auswahl.removeAllRanges();
+      auswahl.addRange(bereich);
+      kopierenEl.textContent = "Markiert - mit Strg+C kopieren";
+    }
+  });
+
+  agentEl.addEventListener("change", () => { beispieleZeigen(); aktualisieren(); });
+  projektEl.addEventListener("change", aktualisieren);
+  aufgabeEl.addEventListener("input", aktualisieren);
+
+  beispieleZeigen();
+  aktualisieren();
+</script>
+
 </body>
 </html>
