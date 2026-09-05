@@ -58,6 +58,19 @@
     overflow-x: auto; border: 1px solid var(--line);
   }
   pre code { background: none; padding: 0; }
+  /* Schnell-Aufgaben */
+  .schnell { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .schnell button {
+    font: inherit; text-align: left; cursor: pointer; padding: 14px 16px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); display: flex; flex-direction: column; gap: 4px;
+  }
+  .schnell button:hover { border-color: var(--accent); }
+  .schnell .titel { font-weight: 600; font-size: 0.95rem; }
+  .schnell .wer { color: var(--muted); font-size: 0.82rem; }
+  .schnell button.kopiert { border-color: var(--accent); }
+  .schnell button.kopiert .wer { color: var(--accent); }
+
   /* Aufgaben-Baukasten */
   .builder {
     background: var(--card); border: 1px solid var(--line); border-radius: 12px;
@@ -118,7 +131,11 @@
   </p>
 </header>
 
-<h2>Aufgabe an einen Agenten geben</h2>
+<h2>Schnell-Aufgaben</h2>
+<p style="color:var(--muted);margin-top:-6px">Ein Klick kopiert die Aufgabe – dann nur noch in Claude Code einfügen. Ein bestimmtes Projekt kannst du unten im Baukasten auswählen.</p>
+<div class="schnell" id="schnell"></div>
+
+<h2>Eigene Aufgabe zusammenstellen</h2>
 <p style="color:var(--muted);margin-top:-6px">Agent wählen, Aufgabe beschreiben, Befehl kopieren – und in Claude Code einfügen.</p>
 
 <div class="builder">
@@ -329,6 +346,16 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     ]
   };
 
+  // Schnell-Aufgaben: haeufige Auftraege, ein Klick kopiert den fertigen Befehl.
+  const SCHNELL = [
+    { agent: "bug-hunter",     titel: "Fehler suchen und beheben",      text: "Finde heraus, warum das Projekt einen Fehler wirft, und behebe die Ursache" },
+    { agent: "code-checker",   titel: "Code prüfen",                    text: "Prüfe das Projekt auf Fehler, Sicherheitsprobleme und Performance" },
+    { agent: "erklaerbaer",    titel: "Code erklären",                  text: "Erkläre mir, wie dieses Projekt aufgebaut ist und was die Hauptdatei macht" },
+    { agent: "web-game-dev",   titel: "Spiel flüssiger machen",         text: "Finde heraus, warum das Spiel ruckelt, und mach es flüssiger" },
+    { agent: "feature-builder",titel: "Startmenü einbauen",             text: "Baue ein Startmenü mit einem Knopf „Spiel starten“ ein" },
+    { agent: "aufraeumer",     titel: "Code aufräumen",                 text: "Räume den Code auf: toter Code raus, doppelte Logik zusammenfassen, bessere Namen" }
+  ];
+
   const agentEl = document.getElementById("agent");
   const projektEl = document.getElementById("projekt");
   const aufgabeEl = document.getElementById("aufgabe");
@@ -369,22 +396,74 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     kopierenEl.textContent = "Kopieren";
   }
 
+  // Kopiert in die Zwischenablage; wenn das gesperrt ist, ueber ein verstecktes Feld.
+  async function kopieren(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const feld = document.createElement("textarea");
+      feld.value = text;
+      feld.setAttribute("readonly", "");
+      feld.style.position = "fixed";
+      feld.style.opacity = "0";
+      document.body.appendChild(feld);
+      feld.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch { ok = false; }
+      feld.remove();
+      return ok;
+    }
+  }
+
   kopierenEl.addEventListener("click", async () => {
     const befehl = befehlBauen();
     if (!befehl) return;
-    try {
-      await navigator.clipboard.writeText(befehl);
+    if (await kopieren(befehl)) {
       kopierenEl.textContent = "Kopiert ✓";
-    } catch {
-      // Zwischenablage gesperrt (z. B. ohne HTTPS): Text markieren, damit man von Hand kopieren kann.
+    } else {
+      // Zwischenablage gesperrt: Text markieren, damit man von Hand kopieren kann.
       const auswahl = window.getSelection();
       const bereich = document.createRange();
       bereich.selectNodeContents(ergebnisEl);
       auswahl.removeAllRanges();
       auswahl.addRange(bereich);
-      kopierenEl.textContent = "Markiert - mit Strg+C kopieren";
+      kopierenEl.textContent = "Markiert – mit Strg+C kopieren";
     }
   });
+
+  // Schnell-Aufgaben aufbauen
+  const schnellEl = document.getElementById("schnell");
+  for (const aufgabe of SCHNELL) {
+    const knopf = document.createElement("button");
+    knopf.type = "button";
+    const titel = document.createElement("span");
+    titel.className = "titel";
+    titel.textContent = aufgabe.titel;
+    const wer = document.createElement("span");
+    wer.className = "wer";
+    wer.textContent = aufgabe.agent + " · klicken zum Kopieren";
+    knopf.append(titel, wer);
+
+    knopf.addEventListener("click", async () => {
+      const projekt = projektEl.value;
+      const befehl = aufgabe.agent + ": " + aufgabe.text + (projekt ? " in " + projekt : "");
+      const ok = await kopieren(befehl);
+      wer.textContent = ok ? "Kopiert ✓ – in Claude Code einfügen" : "Kopieren nicht möglich – unten selbst zusammenstellen";
+      knopf.classList.add("kopiert");
+      // Aufgabe zusätzlich unten in den Baukasten übernehmen, falls man sie noch anpassen will.
+      agentEl.value = aufgabe.agent;
+      aufgabeEl.value = aufgabe.text;
+      beispieleZeigen();
+      aktualisieren();
+      setTimeout(() => {
+        wer.textContent = aufgabe.agent + " · klicken zum Kopieren";
+        knopf.classList.remove("kopiert");
+      }, 2500);
+    });
+
+    schnellEl.appendChild(knopf);
+  }
 
   agentEl.addEventListener("change", () => { beispieleZeigen(); aktualisieren(); });
   projektEl.addEventListener("change", aktualisieren);
