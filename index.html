@@ -446,20 +446,24 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     knopf.append(titel, wer);
 
     knopf.addEventListener("click", async () => {
-      const projekt = projektEl.value;
-      const befehl = aufgabe.agent + ": " + aufgabe.text + (projekt ? " in " + projekt : "");
-      const ok = await kopieren(befehl);
-      wer.textContent = ok ? "Kopiert ✓ – in Claude Code einfügen" : "Kopieren nicht möglich – unten selbst zusammenstellen";
-      knopf.classList.add("kopiert");
-      // Aufgabe zusätzlich unten in den Baukasten übernehmen, falls man sie noch anpassen will.
+      // Zuerst sichtbar reagieren und die Aufgabe unten in den Baukasten übernehmen -
+      // die Zwischenablage kann nachfragen und dauert dann.
       agentEl.value = aufgabe.agent;
       aufgabeEl.value = aufgabe.text;
       beispieleZeigen();
       aktualisieren();
+      knopf.classList.add("kopiert");
+      wer.textContent = "wird kopiert …";
+
+      const befehl = befehlBauen();
+      const ok = await kopieren(befehl);
+      wer.textContent = ok
+        ? "Kopiert ✓ – in Claude Code einfügen"
+        : "Steht unten im Feld „Fertiger Befehl“";
       setTimeout(() => {
         wer.textContent = aufgabe.agent + " · klicken zum Kopieren";
         knopf.classList.remove("kopiert");
-      }, 2500);
+      }, 3000);
     });
 
     schnellEl.appendChild(knopf);
