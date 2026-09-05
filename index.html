@@ -171,8 +171,15 @@ und arbeiten ihn Schritt für Schritt ab.</p>
       <option value="swiss-smp"></option>
       <option value="weltenkaempfer"></option>
     </datalist>
-    <p class="hint">Jeder Ordner geht – auch einer, den es beim Erstellen dieser Seite noch nicht gab.
-    Für eine einzelne Datei den Pfad schreiben, z. B. <code>MikkelRacer/spiel.js</code>.</p>
+    <div class="knopfreihe" style="margin-top:10px">
+      <button class="knopf neben" id="ordner-waehlen" type="button">Ordner vom Computer wählen …</button>
+      <span class="hint" id="ordner-meldung" style="margin:0"></span>
+    </div>
+    <input type="file" id="ordner-ersatz" webkitdirectory directory hidden>
+    <p class="hint">Der Knopf öffnet den Ordner-Auswahldialog von Windows – du kannst jeden Ordner auf deinem
+    Rechner nehmen. Übernommen wird nur sein Name, seine Unterordner landen als Vorschläge in der Liste.
+    Es wird nichts hochgeladen und nichts gelesen ausser den Ordnernamen. Tippen geht weiterhin auch,
+    für eine einzelne Datei z. B. <code>MikkelRacer/spiel.js</code>.</p>
   </div>
 
   <div class="field">
@@ -613,6 +620,74 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 
   kachelnBauen(SCHNELL, document.getElementById("schnell"));
   kachelnBauen(GROSS, document.getElementById("gross"));
+
+  // --- Ordner vom Computer wählen -------------------------------------------
+
+  const ordnerListeEl = document.getElementById("ordner");
+  const ordnerWaehlenEl = document.getElementById("ordner-waehlen");
+  const ordnerMeldungEl = document.getElementById("ordner-meldung");
+  const ordnerErsatzEl = document.getElementById("ordner-ersatz");
+
+  // Gewählten Ordner eintragen und seine Unterordner als Vorschläge anbieten.
+  function ordnerUebernehmen(name, unterordner) {
+    projektEl.value = name;
+    erstellModus = false;
+    aktualisieren();
+
+    for (const option of [...ordnerListeEl.children]) {
+      if (option.dataset.gewaehlt) option.remove();
+    }
+    for (const unter of unterordner.slice(0, 40)) {
+      const option = document.createElement("option");
+      option.value = name + "/" + unter;
+      option.dataset.gewaehlt = "1";
+      ordnerListeEl.appendChild(option);
+    }
+
+    ordnerMeldungEl.textContent = unterordner.length
+      ? "„" + name + "“ übernommen · " + unterordner.length + " Unterordner als Vorschlag"
+      : "„" + name + "“ übernommen";
+  }
+
+  async function ordnerWaehlen() {
+    // Der moderne Weg: echter Ordnerdialog, liest nur die Namen der Einträge.
+    if (window.showDirectoryPicker) {
+      try {
+        const ordner = await window.showDirectoryPicker();
+        const unterordner = [];
+        for await (const [name, eintrag] of ordner.entries()) {
+          if (eintrag.kind === "directory" && !name.startsWith(".")) unterordner.push(name);
+        }
+        unterordner.sort();
+        ordnerUebernehmen(ordner.name, unterordner);
+      } catch (e) {
+        // Abbrechen im Dialog ist kein Fehler.
+        if (e && e.name !== "AbortError") ordnerMeldungEl.textContent = "Ordner konnte nicht gelesen werden";
+      }
+      return;
+    }
+    // Ältere Browser: Umweg über ein Ordner-Feld.
+    ordnerErsatzEl.click();
+  }
+
+  ordnerErsatzEl.addEventListener("change", () => {
+    const dateien = [...ordnerErsatzEl.files];
+    if (!dateien.length) return;
+    const pfade = dateien.map(d => d.webkitRelativePath).filter(Boolean);
+    if (!pfade.length) return;
+
+    const name = pfade[0].split("/")[0];
+    const gefunden = new Set();
+    for (const pfad of pfade) {
+      const teile = pfad.split("/");
+      // Ein Unterordner ist nur da, wo unter ihm noch etwas liegt.
+      if (teile.length > 2 && !teile[1].startsWith(".")) gefunden.add(teile[1]);
+    }
+    ordnerUebernehmen(name, [...gefunden].sort());
+    ordnerErsatzEl.value = "";
+  });
+
+  ordnerWaehlenEl.addEventListener("click", ordnerWaehlen);
 
   // --- Fertige HTML-Datei bauen ---------------------------------------------
 
