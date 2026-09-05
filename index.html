@@ -109,6 +109,8 @@
     margin-top: 12px; padding: 10px 18px; border-radius: 8px;
     border: 1px solid var(--accent); background: var(--accent); color: #fff;
   }
+  .knopfreihe { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .knopf.neben { background: none; color: var(--accent); }
   .knopf:hover { filter: brightness(1.08); }
   .knopf:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
   footer {
@@ -182,8 +184,12 @@ und arbeiten ihn Schritt für Schritt ab.</p>
   <div class="field" style="margin-bottom:0">
     <label for="ergebnis">4. Fertiger Befehl</label>
     <div class="ergebnis leer" id="ergebnis">Wird angezeigt, sobald du oben etwas eingibst.</div>
-    <button class="knopf" id="kopieren" disabled>Kopieren</button>
-    <p class="hint">In Claude Code einfügen – im Terminal oder direkt im Chat.</p>
+    <div class="knopfreihe">
+      <button class="knopf" id="erstellen" disabled>Erstellen</button>
+      <button class="knopf neben" id="kopieren" disabled>Nur kopieren</button>
+    </div>
+    <p class="hint"><strong>Erstellen</strong> hängt den Auftrag an, alles fertig zu bauen und die Dateien
+    wirklich anzulegen – und kopiert den Befehl. In Claude Code einfügen, dann legt der Agent los.</p>
   </div>
 </div>
 
@@ -450,6 +456,9 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
   const aufgabeEl = document.getElementById("aufgabe");
   const ergebnisEl = document.getElementById("ergebnis");
   const kopierenEl = document.getElementById("kopieren");
+  const erstellenEl = document.getElementById("erstellen");
+  // Zeigt das Ergebnisfeld gerade den Bau-Auftrag?
+  let erstellModus = false;
   const beispieleEl = document.getElementById("beispiele");
 
   function beispieleZeigen() {
@@ -463,26 +472,35 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     }
   }
 
-  function befehlBauen() {
+  // Zusatz beim Erstellen: fertig bauen, Dateien wirklich anlegen, danach pruefen.
+  const ERSTELL_AUFTRAG =
+    " Bau das fertig: lege die nötigen Dateien wirklich an beziehungsweise ändere die " +
+    "bestehenden, keine Ausschnitte und keine Platzhalter. Prüfe danach, dass es läuft, " +
+    "und sag mir am Ende, welche Dateien du angelegt oder geändert hast.";
+
+  function befehlBauen(erstellen) {
     const aufgabe = aufgabeEl.value.trim();
     if (!aufgabe) return "";
     const projekt = projektEl.value.trim();
     const ort = projekt ? " in " + projekt : "";
-    return agentEl.value + ": " + aufgabe + ort;
+    return agentEl.value + ": " + aufgabe + ort + (erstellen ? "." + ERSTELL_AUFTRAG : "");
   }
 
   function aktualisieren() {
-    const befehl = befehlBauen();
+    const befehl = befehlBauen(erstellModus);
     if (befehl) {
       ergebnisEl.textContent = befehl;
       ergebnisEl.classList.remove("leer");
       kopierenEl.disabled = false;
+      erstellenEl.disabled = false;
     } else {
       ergebnisEl.textContent = "Wird angezeigt, sobald du oben etwas eingibst.";
       ergebnisEl.classList.add("leer");
       kopierenEl.disabled = true;
+      erstellenEl.disabled = true;
     }
-    kopierenEl.textContent = "Kopieren";
+    kopierenEl.textContent = "Nur kopieren";
+    erstellenEl.textContent = "Erstellen";
   }
 
   // Kopiert in die Zwischenablage; wenn das gesperrt ist, ueber ein verstecktes Feld.
@@ -505,11 +523,16 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     }
   }
 
-  kopierenEl.addEventListener("click", async () => {
-    const befehl = befehlBauen();
+  // Beide Knöpfe kopieren; der Erstellen-Knopf hängt vorher den Bau-Auftrag an.
+  async function ergebnisKopieren(knopf, erstellen) {
+    erstellModus = erstellen;
+    const befehl = befehlBauen(erstellen);
     if (!befehl) return;
+    ergebnisEl.textContent = befehl;
+    ergebnisEl.classList.remove("leer");
+
     if (await kopieren(befehl)) {
-      kopierenEl.textContent = "Kopiert ✓";
+      knopf.textContent = "Kopiert ✓ – in Claude Code einfügen";
     } else {
       // Zwischenablage gesperrt: Text markieren, damit man von Hand kopieren kann.
       const auswahl = window.getSelection();
@@ -517,9 +540,12 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
       bereich.selectNodeContents(ergebnisEl);
       auswahl.removeAllRanges();
       auswahl.addRange(bereich);
-      kopierenEl.textContent = "Markiert – mit Strg+C kopieren";
+      knopf.textContent = "Markiert – mit Strg+C kopieren";
     }
-  });
+  }
+
+  kopierenEl.addEventListener("click", () => ergebnisKopieren(kopierenEl, false));
+  erstellenEl.addEventListener("click", () => ergebnisKopieren(erstellenEl, true));
 
   // Aufgabenkacheln aufbauen (Schnell-Aufgaben und groessere Vorhaben)
   function kachelnBauen(liste, ziel) {
@@ -539,6 +565,7 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
       // die Zwischenablage kann nachfragen und dauert dann.
       agentEl.value = aufgabe.agent;
       aufgabeEl.value = aufgabe.text;
+      erstellModus = false;
       beispieleZeigen();
       aktualisieren();
       knopf.classList.add("kopiert");
@@ -564,7 +591,7 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 
   agentEl.addEventListener("change", () => { beispieleZeigen(); aktualisieren(); });
   projektEl.addEventListener("input", aktualisieren);
-  aufgabeEl.addEventListener("input", aktualisieren);
+  aufgabeEl.addEventListener("input", () => { erstellModus = false; aktualisieren(); });
 
   beispieleZeigen();
   aktualisieren();
