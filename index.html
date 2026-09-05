@@ -123,7 +123,7 @@
 
 <header>
   <h1>mikkel-<span>agents</span></h1>
-  <p class="lead">Sechs Claude-Code-Agenten für die tägliche Programmierarbeit – auf Deutsch,
+  <p class="lead">Neun Claude-Code-Agenten für die tägliche Programmierarbeit – auf Deutsch,
   ausgelegt auf schlanke Web- und Browser-Spiel-Projekte (Vanilla JS, Canvas, Three.js).</p>
   <p class="links">
     <a href="https://github.com/mikkel-thiemann/mikkel-agents">Auf GitHub ansehen</a>
@@ -155,6 +155,7 @@ und arbeiten ihn Schritt für Schritt ab.</p>
       <option value="aufraeumer">aufraeumer – Code aufräumen, Verhalten bleibt gleich</option>
       <option value="planer">planer – grosses Vorhaben in Schritte zerlegen</option>
       <option value="test-schreiber">test-schreiber – Tests schreiben, die Fehler finden</option>
+      <option value="webseiten-bauer">webseiten-bauer – ganze Webseiten bauen</option>
     </select>
   </div>
 
@@ -307,6 +308,28 @@ und arbeiten ihn Schritt für Schritt ab.</p>
   </div>
 </details>
 
+<details class="agent">
+  <summary><span class="name">webseiten-bauer</span><span class="what">Ganze Webseiten bauen</span></summary>
+  <div class="body">
+    <p>Baut Webseiten – fertig, ansehnlich und ohne unnötige Technik. Eine einzelne <code>index.html</code>
+    mit eigenem CSS reicht für fast alles: kein React, kein Build-Werkzeug, kein npm.
+    Eine Seite, die man mit Doppelklick öffnen kann, ist das Ziel.</p>
+    <p><strong>Vorgehen:</strong></p>
+    <ol>
+      <li>Zweck klären: wofür ist die Seite, wer schaut sie an, was soll die Person tun können?</li>
+      <li>Bestehendes übernehmen – Farben, Schriften und Struktur vorhandener Seiten, statt einen zweiten Stil danebenzustellen.</li>
+      <li>Bauen: Inhalt zuerst, dann Aussehen. Echte Texte, kein „Lorem ipsum“.</li>
+      <li>Im Browser prüfen: Konsole auf Fehler, schmale Ansicht testen, Screenshot zeigen.</li>
+    </ol>
+    <p><strong>Handwerk:</strong> echte HTML-Elemente statt überall <code>div</code>; Abstände über Flexbox
+    und Grid mit <code>gap</code>; Handy von Anfang an mitgedacht; Farben als Variablen in <code>:root</code>
+    mit Dunkelmodus darüber; <code>alt</code>-Texte, sichtbarer Fokusrahmen, <code>label</code> an jedem Feld;
+    sparsam mit Effekten.</p>
+    <p><strong>Ins Netz:</strong> kennt den Weg über GitHub Pages – und schreibt nie Passwörter oder
+    Schlüssel in eine Seite, die veröffentlicht wird.</p>
+  </div>
+</details>
+
 <h2>Installation</h2>
 <p>Für alle Projekte (global, empfohlen) – Windows PowerShell:</p>
 <pre><code>git clone https://github.com/mikkel-thiemann/mikkel-agents.git
@@ -386,6 +409,11 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
       "Plane, wie ich aus dem Spiel mehrere Level mache",
       "Was braucht es, damit zwei Leute zusammen spielen können?"
     ],
+    "webseiten-bauer": [
+      "Baue mir eine Startseite für meine Spiele",
+      "Mach die Seite auf dem Handy brauchbar",
+      "Füge einen Dunkelmodus hinzu"
+    ],
     "test-schreiber": [
       "Schreibe Tests für die Kollisionsprüfung",
       "Dieser Fehler kam schon dreimal - schreibe einen Test dagegen",
@@ -400,6 +428,7 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     { agent: "erklaerbaer",    titel: "Code erklären",                  text: "Erkläre mir, wie dieses Projekt aufgebaut ist und was die Hauptdatei macht" },
     { agent: "web-game-dev",   titel: "Spiel flüssiger machen",         text: "Finde heraus, warum das Spiel ruckelt, und mach es flüssiger" },
     { agent: "feature-builder",titel: "Startmenü einbauen",             text: "Baue ein Startmenü mit einem Knopf „Spiel starten“ ein" },
+    { agent: "webseiten-bauer", titel: "Startseite bauen",              text: "Baue eine Startseite, die meine Spiele vorstellt und zu ihnen verlinkt" },
     { agent: "aufraeumer",     titel: "Code aufräumen",                 text: "Räume den Code auf: toter Code raus, doppelte Logik zusammenfassen, bessere Namen" }
   ];
 
@@ -410,6 +439,7 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     { agent: "feature-builder", titel: "Gegner mit Verhalten",   text: "Baue einen Gegnertyp, der die Spielfigur verfolgt, Hindernissen ausweicht und nach einem Treffer verschwindet" },
     { agent: "web-game-dev",  titel: "Spiel für Handy",          text: "Mach das Spiel auf dem Handy spielbar: Touch-Steuerung, passende Bildschirmgrösse, flüssige Bildrate" },
     { agent: "test-schreiber", titel: "Tests für die Spiellogik", text: "Schreibe Tests für die wichtigste Spiellogik, inklusive Grenzfällen, und lass sie laufen" },
+    { agent: "webseiten-bauer", titel: "Seite mit Unterseiten", text: "Baue eine Webseite mit Startseite, einer Seite pro Spiel und einem Kontaktbereich - einheitlich im Aussehen und auf dem Handy brauchbar" },
     { agent: "bug-hunter",    titel: "Fehler, der immer wiederkommt", text: "Dieser Fehler tritt nur manchmal auf und ich finde die Ursache nicht - geh systematisch vor und behebe die Ursache" }
   ];
 
