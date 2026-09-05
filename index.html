@@ -88,6 +88,7 @@
     outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent;
   }
   .builder textarea { resize: vertical; min-height: 86px; }
+  #eintraege { min-height: 104px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86rem; }
   .field { margin-bottom: 18px; }
   .hint { color: var(--muted); font-size: 0.86rem; margin: 7px 0 0; }
   .beispiele { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
@@ -190,6 +191,30 @@ und arbeiten ihn Schritt für Schritt ab.</p>
     </div>
     <p class="hint"><strong>Erstellen</strong> hängt den Auftrag an, alles fertig zu bauen und die Dateien
     wirklich anzulegen – und kopiert den Befehl. In Claude Code einfügen, dann legt der Agent los.</p>
+  </div>
+</div>
+
+<h2>Fertige HTML-Datei</h2>
+<p style="color:var(--muted);margin-top:-6px">Eine vollständige Startseite als einzelne <code>index.html</code> – Aussehen, Handy-Ansicht und
+Dunkelmodus schon drin. Ansehen, herunterladen, doppelklicken. Zum Ändern gibst du sie dem
+<code>webseiten-bauer</code>.</p>
+
+<div class="builder">
+  <div class="field">
+    <label for="titel">Wie soll die Seite heissen?</label>
+    <input id="titel" value="Mikkels Spiele" autocomplete="off">
+  </div>
+
+  <div class="field" style="margin-bottom:0">
+    <label for="eintraege">Was steht drauf? <span style="font-weight:400;color:var(--muted)">(eine Zeile pro Kachel: Name | Beschreibung | Link)</span></label>
+    <textarea id="eintraege" spellcheck="false">MikkelRacer | Rennspiel im Browser | https://mikkel-thiemann.github.io/MikkelRacer/
+Voxel-Galaxie | Klötzchenwelt in 3D | https://mikkel-thiemann.github.io/starwars-voxel-world/
+Weltenkämpfer | Kampf durch die Welten | https://mikkel-thiemann.github.io/weltenkaempfer/</textarea>
+    <div class="knopfreihe" style="margin-top:12px">
+      <button class="knopf" id="vorlage-laden">Als index.html herunterladen</button>
+      <button class="knopf neben" id="vorlage-ansehen">Ansehen</button>
+    </div>
+    <p class="hint">Die Datei entsteht direkt in deinem Browser – nichts wird irgendwohin geschickt.</p>
   </div>
 </div>
 
@@ -588,6 +613,109 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 
   kachelnBauen(SCHNELL, document.getElementById("schnell"));
   kachelnBauen(GROSS, document.getElementById("gross"));
+
+  // --- Fertige HTML-Datei bauen ---------------------------------------------
+
+  const titelEl = document.getElementById("titel");
+  const eintraegeEl = document.getElementById("eintraege");
+
+  function maskieren(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // Zeilen der Form "Name | Beschreibung | Link" lesen; Beschreibung und Link sind freiwillig.
+  function eintraegeLesen() {
+    return eintraegeEl.value.split("\n")
+      .map(zeile => zeile.trim())
+      .filter(Boolean)
+      .map(zeile => {
+        const teile = zeile.split("|").map(t => t.trim());
+        return { name: teile[0] || "Ohne Namen", text: teile[1] || "", link: teile[2] || "" };
+      });
+  }
+
+  function vorlageBauen() {
+    const titel = titelEl.value.trim() || "Meine Seite";
+    const kacheln = eintraegeLesen().map(e => {
+      const inhalt =
+        '      <h2>' + maskieren(e.name) + '</h2>\n' +
+        (e.text ? '      <p>' + maskieren(e.text) + '</p>\n' : '');
+      return e.link
+        ? '    <a class="karte" href="' + maskieren(e.link) + '">\n' + inhalt + '    </a>'
+        : '    <div class="karte">\n' + inhalt + '    </div>';
+    }).join("\n");
+
+    return '<!DOCTYPE html>\n' +
+'<html lang="de">\n' +
+'<head>\n' +
+'<meta charset="utf-8">\n' +
+'<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+'<title>' + maskieren(titel) + '</title>\n' +
+'<style>\n' +
+'  :root {\n' +
+'    --grund: #f5f6f8; --karte: #ffffff; --schrift: #16181d;\n' +
+'    --leise: #5c6370; --linie: #e0e3e9; --akzent: #c1440e;\n' +
+'  }\n' +
+'  @media (prefers-color-scheme: dark) {\n' +
+'    :root {\n' +
+'      --grund: #14161a; --karte: #1c1f25; --schrift: #e8eaed;\n' +
+'      --leise: #9aa1ad; --linie: #2c3039; --akzent: #ff7a45;\n' +
+'    }\n' +
+'  }\n' +
+'  * { box-sizing: border-box; }\n' +
+'  body {\n' +
+'    margin: 0; background: var(--grund); color: var(--schrift);\n' +
+'    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;\n' +
+'  }\n' +
+'  .seite { max-width: 900px; margin: 0 auto; padding: 48px 20px 80px; }\n' +
+'  h1 { font-size: 2.2rem; margin: 0 0 8px; letter-spacing: -0.02em; }\n' +
+'  .unter { color: var(--leise); margin: 0 0 36px; max-width: 60ch; }\n' +
+'  .karten { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }\n' +
+'  .karte {\n' +
+'    display: block; text-decoration: none; color: inherit;\n' +
+'    background: var(--karte); border: 1px solid var(--linie);\n' +
+'    border-radius: 12px; padding: 18px 20px;\n' +
+'  }\n' +
+'  a.karte:hover { border-color: var(--akzent); }\n' +
+'  a.karte:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }\n' +
+'  .karte h2 { font-size: 1.1rem; margin: 0 0 6px; color: var(--akzent); }\n' +
+'  .karte p { margin: 0; color: var(--leise); font-size: 0.94rem; }\n' +
+'  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--linie); color: var(--leise); font-size: 0.88rem; }\n' +
+'</style>\n' +
+'</head>\n' +
+'<body>\n' +
+'  <div class="seite">\n' +
+'    <h1>' + maskieren(titel) + '</h1>\n' +
+'    <p class="unter">Alles, was ich bisher gebaut habe – zum Anklicken und Ausprobieren.</p>\n' +
+'\n' +
+'    <div class="karten">\n' +
+kacheln + '\n' +
+'    </div>\n' +
+'\n' +
+'    <footer>Gebaut mit HTML, CSS und JavaScript.</footer>\n' +
+'  </div>\n' +
+'</body>\n' +
+'</html>\n';
+  }
+
+  document.getElementById("vorlage-laden").addEventListener("click", () => {
+    const datei = new Blob([vorlageBauen()], { type: "text/html;charset=utf-8" });
+    const adresse = URL.createObjectURL(datei);
+    const link = document.createElement("a");
+    link.href = adresse;
+    link.download = "index.html";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(adresse), 1000);
+  });
+
+  document.getElementById("vorlage-ansehen").addEventListener("click", () => {
+    const datei = new Blob([vorlageBauen()], { type: "text/html;charset=utf-8" });
+    const adresse = URL.createObjectURL(datei);
+    window.open(adresse, "_blank", "noopener");
+    setTimeout(() => URL.revokeObjectURL(adresse), 20000);
+  });
 
   agentEl.addEventListener("change", () => { beispieleZeigen(); aktualisieren(); });
   projektEl.addEventListener("input", aktualisieren);
