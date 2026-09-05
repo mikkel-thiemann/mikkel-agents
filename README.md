@@ -16,6 +16,11 @@ auf Deutsch, ausgelegt auf schlanke Web- und Browser-Spiel-Projekte (Vanilla JS,
 | **web-game-dev** | Browser-Spiele: Spiellogik, Canvas/Three.js, Steuerung, Delta-Zeit, Performance. |
 | **erklaerbaer** | Erklärt Code und Fehlermeldungen einfach und verständlich. |
 | **aufraeumer** | Refactoring bei exakt gleichem Verhalten. |
+| **planer** | Zerlegt grosse Vorhaben in Schritte, bevor gebaut wird. |
+| **test-schreiber** | Schreibt Tests, die echte Fehler finden, und lässt sie laufen. |
+
+Für grössere Vorhaben – mehrere Dateien, mehrere Schritte – planen die arbeitenden Agenten
+zuerst und arbeiten den Plan dann Schritt für Schritt ab.
 
 ## Installation
 

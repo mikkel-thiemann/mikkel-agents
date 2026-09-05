@@ -135,6 +135,11 @@
 <p style="color:var(--muted);margin-top:-6px">Ein Klick kopiert die Aufgabe – dann nur noch in Claude Code einfügen. Ein bestimmtes Projekt kannst du unten im Baukasten auswählen.</p>
 <div class="schnell" id="schnell"></div>
 
+<h2>Grössere Vorhaben</h2>
+<p style="color:var(--muted);margin-top:-6px">Aufgaben über mehrere Dateien und Schritte. Die Agenten machen dafür zuerst einen Plan
+und arbeiten ihn Schritt für Schritt ab.</p>
+<div class="schnell" id="gross"></div>
+
 <h2>Eigene Aufgabe zusammenstellen</h2>
 <p style="color:var(--muted);margin-top:-6px">Agent wählen, Aufgabe beschreiben, Befehl kopieren – und in Claude Code einfügen.</p>
 
@@ -148,6 +153,8 @@
       <option value="web-game-dev">web-game-dev – Browser-Spiel: Logik, Grafik, Steuerung</option>
       <option value="erklaerbaer">erklaerbaer – Code oder Fehlermeldung erklären</option>
       <option value="aufraeumer">aufraeumer – Code aufräumen, Verhalten bleibt gleich</option>
+      <option value="planer">planer – grosses Vorhaben in Schritte zerlegen</option>
+      <option value="test-schreiber">test-schreiber – Tests schreiben, die Fehler finden</option>
     </select>
   </div>
 
@@ -270,6 +277,36 @@
   </div>
 </details>
 
+<details class="agent">
+  <summary><span class="name">planer</span><span class="what">Grosses Vorhaben in Schritte zerlegen</span></summary>
+  <div class="body">
+    <p>Plant grössere Vorhaben, bevor jemand Code schreibt – und ändert selbst nichts.</p>
+    <ol>
+      <li><strong>Bestand aufnehmen:</strong> die betroffenen Dateien wirklich lesen – was gibt es schon, was lässt sich wiederverwenden?</li>
+      <li><strong>Ziel schärfen:</strong> in zwei bis drei Sätzen, was am Ende können werden soll.</li>
+      <li><strong>In Schritte zerlegen:</strong> nummeriert, jeder Schritt für sich abschliessbar und testbar, mit den betroffenen Dateien.</li>
+      <li><strong>Stolperfallen nennen:</strong> was kaputtgehen kann, was zusammenhängt, was in eine bestimmte Reihenfolge muss.</li>
+      <li><strong>Empfehlung:</strong> womit anfangen, was warten kann, was vielleicht gar nicht nötig ist.</li>
+    </ol>
+    <p><strong>Regeln:</strong> Der Plan muss zu diesem Projekt passen, nicht zu einem gedachten Idealprojekt. Ist ein Vorhaben zu gross, schlägt er eine kleinere erste Fassung vor, die schon Spass macht.</p>
+  </div>
+</details>
+
+<details class="agent">
+  <summary><span class="name">test-schreiber</span><span class="what">Tests schreiben, die Fehler finden</span></summary>
+  <div class="body">
+    <p>Schreibt Tests, die echte Fehler finden – nicht Tests, die nur grün aussehen.</p>
+    <ol>
+      <li>Erst den Code lesen und das tatsächliche Verhalten testen, nicht das erhoffte.</li>
+      <li>Den Weg des Projekts benutzen; sonst reicht <code>node --test</code> mit <code>node:assert</code> – kein Test-Framework installieren.</li>
+      <li>Die Fälle abdecken, die wirklich schiefgehen: Grenzen (0, leer, negativ, sehr gross), Sonderfälle (null, undefined) und der Fall, wegen dem der Fehler damals auftrat.</li>
+      <li>Tests laufen lassen und das Ergebnis zeigen – ein Test, der nie lief, ist kein Test.</li>
+      <li>Schlägt ein Test fehl: prüfen, ob der Test falsch ist oder der Code. Nie den Test verbiegen, damit er grün wird.</li>
+    </ol>
+    <p><strong>Regeln:</strong> Testnamen sagen auf Deutsch, was geprüft wird. Logik vor Grafik – schwer testbare Teile lieber herauslösen.</p>
+  </div>
+</details>
+
 <h2>Installation</h2>
 <p>Für alle Projekte (global, empfohlen) – Windows PowerShell:</p>
 <pre><code>git clone https://github.com/mikkel-thiemann/mikkel-agents.git
@@ -343,6 +380,16 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
       "Räume die Hauptdatei auf, sie ist zu lang geworden",
       "Fasse den doppelten Code zusammen",
       "Gib den Variablen bessere Namen"
+    ],
+    "planer": [
+      "Ich will Speicherstände einbauen - wie gehe ich vor?",
+      "Plane, wie ich aus dem Spiel mehrere Level mache",
+      "Was braucht es, damit zwei Leute zusammen spielen können?"
+    ],
+    "test-schreiber": [
+      "Schreibe Tests für die Kollisionsprüfung",
+      "Dieser Fehler kam schon dreimal - schreibe einen Test dagegen",
+      "Teste die Punkteberechnung mit allen Sonderfällen"
     ]
   };
 
@@ -354,6 +401,16 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     { agent: "web-game-dev",   titel: "Spiel flüssiger machen",         text: "Finde heraus, warum das Spiel ruckelt, und mach es flüssiger" },
     { agent: "feature-builder",titel: "Startmenü einbauen",             text: "Baue ein Startmenü mit einem Knopf „Spiel starten“ ein" },
     { agent: "aufraeumer",     titel: "Code aufräumen",                 text: "Räume den Code auf: toter Code raus, doppelte Logik zusammenfassen, bessere Namen" }
+  ];
+
+  // Groessere Vorhaben: mehrere Dateien, mehrere Schritte.
+  const GROSS = [
+    { agent: "planer",        titel: "Speicherstand einbauen",   text: "Plane Schritt für Schritt, wie ich Speicherstände einbaue: was gespeichert wird, wo, und in welcher Reihenfolge ich vorgehe" },
+    { agent: "planer",        titel: "Mehrere Level",            text: "Plane den Umbau von einem festen Spielfeld auf mehrere Level, die nacheinander geladen werden" },
+    { agent: "feature-builder", titel: "Gegner mit Verhalten",   text: "Baue einen Gegnertyp, der die Spielfigur verfolgt, Hindernissen ausweicht und nach einem Treffer verschwindet" },
+    { agent: "web-game-dev",  titel: "Spiel für Handy",          text: "Mach das Spiel auf dem Handy spielbar: Touch-Steuerung, passende Bildschirmgrösse, flüssige Bildrate" },
+    { agent: "test-schreiber", titel: "Tests für die Spiellogik", text: "Schreibe Tests für die wichtigste Spiellogik, inklusive Grenzfällen, und lass sie laufen" },
+    { agent: "bug-hunter",    titel: "Fehler, der immer wiederkommt", text: "Dieser Fehler tritt nur manchmal auf und ich finde die Ursache nicht - geh systematisch vor und behebe die Ursache" }
   ];
 
   const agentEl = document.getElementById("agent");
@@ -432,9 +489,9 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     }
   });
 
-  // Schnell-Aufgaben aufbauen
-  const schnellEl = document.getElementById("schnell");
-  for (const aufgabe of SCHNELL) {
+  // Aufgabenkacheln aufbauen (Schnell-Aufgaben und groessere Vorhaben)
+  function kachelnBauen(liste, ziel) {
+  for (const aufgabe of liste) {
     const knopf = document.createElement("button");
     knopf.type = "button";
     const titel = document.createElement("span");
@@ -466,8 +523,12 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
       }, 3000);
     });
 
-    schnellEl.appendChild(knopf);
+    ziel.appendChild(knopf);
   }
+  }
+
+  kachelnBauen(SCHNELL, document.getElementById("schnell"));
+  kachelnBauen(GROSS, document.getElementById("gross"));
 
   agentEl.addEventListener("change", () => { beispieleZeigen(); aktualisieren(); });
   projektEl.addEventListener("change", aktualisieren);
