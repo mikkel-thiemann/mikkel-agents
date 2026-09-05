@@ -1,5 +1,8 @@
 # mikkel-agents
 
+**Webseite mit Aufgaben-Baukasten: https://mikkel-thiemann.github.io/mikkel-agents/**
+Dort Agent und Projekt wählen, Aufgabe eintippen und den fertigen Befehl kopieren.
+
 Eine Sammlung von **Claude-Code-Agenten** (Subagents) für die tägliche Programmierarbeit –
 auf Deutsch, ausgelegt auf schlanke Web- und Browser-Spiel-Projekte (Vanilla JS, Canvas, Three.js).
 
