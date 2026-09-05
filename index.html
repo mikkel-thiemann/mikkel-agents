@@ -79,12 +79,12 @@
   .builder label {
     display: block; font-weight: 600; font-size: 0.92rem; margin-bottom: 7px;
   }
-  .builder select, .builder textarea {
+  .builder select, .builder textarea, .builder input {
     width: 100%; padding: 10px 12px; border: 1px solid var(--line);
     border-radius: 8px; background: var(--bg); color: var(--text);
     font: inherit; font-size: 0.95rem;
   }
-  .builder select:focus, .builder textarea:focus {
+  .builder select:focus, .builder textarea:focus, .builder input:focus {
     outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent;
   }
   .builder textarea { resize: vertical; min-height: 86px; }
@@ -132,7 +132,7 @@
 </header>
 
 <h2>Schnell-Aufgaben</h2>
-<p style="color:var(--muted);margin-top:-6px">Ein Klick kopiert die Aufgabe – dann nur noch in Claude Code einfügen. Ein bestimmtes Projekt kannst du unten im Baukasten auswählen.</p>
+<p style="color:var(--muted);margin-top:-6px">Ein Klick kopiert die Aufgabe – dann nur noch in Claude Code einfügen. Einen bestimmten Ordner kannst du unten im Baukasten eintragen.</p>
 <div class="schnell" id="schnell"></div>
 
 <h2>Grössere Vorhaben</h2>
@@ -160,14 +160,16 @@ und arbeiten ihn Schritt für Schritt ab.</p>
   </div>
 
   <div class="field">
-    <label for="projekt">2. In welchem Projekt oder welcher Datei? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-    <select id="projekt">
-      <option value="">– keine Angabe –</option>
-      <option>MikkelRacer</option>
-      <option>starwars-voxel-world</option>
-      <option>swiss-smp</option>
-      <option>weltenkaempfer</option>
-    </select>
+    <label for="projekt">2. In welchem Ordner oder welcher Datei? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+    <input id="projekt" list="ordner" autocomplete="off" placeholder="z. B. MikkelRacer, ein anderer Ordner oder spiel/world.js">
+    <datalist id="ordner">
+      <option value="MikkelRacer"></option>
+      <option value="starwars-voxel-world"></option>
+      <option value="swiss-smp"></option>
+      <option value="weltenkaempfer"></option>
+    </datalist>
+    <p class="hint">Jeder Ordner geht – auch einer, den es beim Erstellen dieser Seite noch nicht gab.
+    Für eine einzelne Datei den Pfad schreiben, z. B. <code>MikkelRacer/spiel.js</code>.</p>
   </div>
 
   <div class="field">
@@ -464,7 +466,7 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
   function befehlBauen() {
     const aufgabe = aufgabeEl.value.trim();
     if (!aufgabe) return "";
-    const projekt = projektEl.value;
+    const projekt = projektEl.value.trim();
     const ort = projekt ? " in " + projekt : "";
     return agentEl.value + ": " + aufgabe + ort;
   }
@@ -561,7 +563,7 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
   kachelnBauen(GROSS, document.getElementById("gross"));
 
   agentEl.addEventListener("change", () => { beispieleZeigen(); aktualisieren(); });
-  projektEl.addEventListener("change", aktualisieren);
+  projektEl.addEventListener("input", aktualisieren);
   aufgabeEl.addEventListener("input", aktualisieren);
 
   beispieleZeigen();
