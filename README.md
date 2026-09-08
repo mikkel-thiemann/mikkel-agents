@@ -23,6 +23,31 @@ auf Deutsch, ausgelegt auf schlanke Web- und Browser-Spiel-Projekte (Vanilla JS,
 Für grössere Vorhaben – mehrere Dateien, mehrere Schritte – planen die arbeitenden Agenten
 zuerst und arbeiten den Plan dann Schritt für Schritt ab.
 
+## Kurzbefehle
+
+Damit ein Agent mit einem Wort losläuft, liegen in `commands/` fertige Slash-Befehle:
+
+| Befehl | Agent |
+|---|---|
+| `/bauen` | webseiten-bauer |
+| `/feature` | feature-builder |
+| `/spiel` | web-game-dev |
+| `/fehler` | bug-hunter |
+| `/pruefen` | code-checker |
+| `/erklaeren` | erklaerbaer |
+| `/aufraeumen` | aufraeumer |
+| `/planen` | planer |
+| `/testen` | test-schreiber |
+
+Beispiel: `/bauen eine Startseite für meine Spiele in senna` – der Agent legt die Dateien
+wirklich an, statt nur einen Vorschlag zu zeigen.
+
+Installieren wie die Agenten, nur in den Ordner `commands`:
+
+```bash
+cp mikkel-agents/commands/*.md dein-projekt/.claude/commands/
+```
+
 ## Installation
 
 **Für alle Projekte** (global, empfohlen):

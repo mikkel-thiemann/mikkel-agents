@@ -164,7 +164,7 @@
     </div>
     <div class="wo-feld">
       <h3>Claude Code</h3>
-      <p>Der Agent arbeitet an deinen echten Projektordnern: anlegen, ändern, prüfen.</p>
+      <p>Der Agent arbeitet an deinen echten Projektordnern: anlegen, ändern, prüfen. Kurzbefehle wie <code>/bauen</code> schicken ihn direkt los.</p>
       <a class="knopf neben" href="#eigene">Auftrag zusammenstellen</a>
       <p class="hint">Für Arbeit an bestehenden Projekten.</p>
     </div>
@@ -234,7 +234,7 @@ und arbeiten ihn Schritt für Schritt ab.</p>
       <button class="knopf neben" id="kopieren" disabled>Nur kopieren</button>
     </div>
     <p class="hint"><strong>Erstellen</strong> hängt den Auftrag an, alles fertig zu bauen und die Dateien
-    wirklich anzulegen – und kopiert den Befehl. In Claude Code einfügen, dann legt der Agent los.</p>
+    wirklich anzulegen – und kopiert den Kurzbefehl. In Claude Code einfügen, dann arbeitet der Agent an deinen Dateien.</p>
   </div>
 </div>
 
@@ -562,6 +562,19 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     }
   }
 
+  // Kurzbefehle: liegen als Dateien in .claude/commands und schicken direkt den Agenten los.
+  const KURZBEFEHLE = {
+    "webseiten-bauer": "bauen",
+    "feature-builder": "feature",
+    "web-game-dev": "spiel",
+    "bug-hunter": "fehler",
+    "code-checker": "pruefen",
+    "erklaerbaer": "erklaeren",
+    "aufraeumer": "aufraeumen",
+    "planer": "planen",
+    "test-schreiber": "testen"
+  };
+
   // Zusatz beim Erstellen: fertig bauen, Dateien wirklich anlegen, danach pruefen.
   const ERSTELL_AUFTRAG =
     " Bau das fertig: lege die nötigen Dateien wirklich an beziehungsweise ändere die " +
@@ -573,7 +586,9 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     if (!aufgabe) return "";
     const projekt = projektEl.value.trim();
     const ort = projekt ? " in " + projekt : "";
-    return agentEl.value + ": " + aufgabe + ort + (erstellen ? "." + ERSTELL_AUFTRAG : "");
+    const kurz = KURZBEFEHLE[agentEl.value];
+    const anrede = kurz ? "/" + kurz + " " : agentEl.value + ": ";
+    return anrede + aufgabe + ort + (erstellen ? "." + ERSTELL_AUFTRAG : "");
   }
 
   function aktualisieren() {
