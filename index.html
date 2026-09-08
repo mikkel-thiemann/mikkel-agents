@@ -123,6 +123,15 @@
     margin-top: 12px; padding: 10px 18px; border-radius: 8px;
     border: 1px solid var(--accent); background: var(--accent); color: #fff;
   }
+  .schalter {
+    display: flex; gap: 10px; align-items: start; cursor: pointer;
+    margin: 14px 0 0; padding: 11px 13px; border-radius: 9px;
+    border: 1px solid var(--line); background: var(--bg);
+    font-size: 0.88rem; color: var(--muted);
+  }
+  .schalter:hover { border-color: var(--accent); }
+  .schalter input { margin: 4px 0 0; accent-color: var(--accent); width: 16px; height: 16px; flex: none; }
+  .schalter strong { color: var(--text); }
   .knopfreihe { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .knopf.neben { background: none; color: var(--accent); }
   .knopf:hover { filter: brightness(1.08); }
@@ -229,6 +238,12 @@ und arbeiten ihn Schritt für Schritt ab.</p>
   <div class="field" style="margin-bottom:0">
     <label for="ergebnis">4. Fertiger Befehl</label>
     <div class="ergebnis leer" id="ergebnis">Wird angezeigt, sobald du oben etwas eingibst.</div>
+    <label class="schalter" for="websuche">
+      <input type="checkbox" id="websuche">
+      <span><strong>Websuche erlauben</strong> – der Agent darf für diese eine Aufgabe im Internet
+      nachschlagen. Ohne Häkchen arbeitet er nur mit dem, was im Projekt steht.</span>
+    </label>
+
     <div class="knopfreihe">
       <button class="knopf" id="erstellen" disabled>Erstellen</button>
       <button class="knopf neben" id="kopieren" disabled>Nur kopieren</button>
@@ -547,6 +562,7 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
   const ergebnisEl = document.getElementById("ergebnis");
   const kopierenEl = document.getElementById("kopieren");
   const erstellenEl = document.getElementById("erstellen");
+  const websucheEl = document.getElementById("websuche");
   // Zeigt das Ergebnisfeld gerade den Bau-Auftrag?
   let erstellModus = false;
   const beispieleEl = document.getElementById("beispiele");
@@ -588,7 +604,8 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     const ort = projekt ? " in " + projekt : "";
     const kurz = KURZBEFEHLE[agentEl.value];
     const anrede = kurz ? "/" + kurz + " " : agentEl.value + ": ";
-    return anrede + aufgabe + ort + (erstellen ? "." + ERSTELL_AUFTRAG : "");
+    const web = websucheEl.checked ? " Websuche erlaubt." : "";
+    return anrede + aufgabe + ort + (erstellen ? "." + ERSTELL_AUFTRAG : "") + web;
   }
 
   function aktualisieren() {
@@ -886,6 +903,7 @@ kacheln + '\n' +
 
   agentEl.addEventListener("change", () => { beispieleZeigen(); aktualisieren(); });
   projektEl.addEventListener("input", aktualisieren);
+  websucheEl.addEventListener("change", aktualisieren);
   aufgabeEl.addEventListener("input", () => { erstellModus = false; aktualisieren(); });
 
   beispieleZeigen();

@@ -23,6 +23,25 @@ auf Deutsch, ausgelegt auf schlanke Web- und Browser-Spiel-Projekte (Vanilla JS,
 Für grössere Vorhaben – mehrere Dateien, mehrere Schritte – planen die arbeitenden Agenten
 zuerst und arbeiten den Plan dann Schritt für Schritt ab.
 
+## Websuche – nur mit Freigabe
+
+Sechs Agenten (`bug-hunter`, `planer`, `webseiten-bauer`, `web-game-dev`, `feature-builder`,
+`erklaerbaer`) können im Web nachschlagen – aber nur, wenn die Erlaubnis im Auftrag steht:
+
+```
+/fehler Cannot read properties of undefined in MikkelRacer. Websuche erlaubt.
+```
+
+Ohne diesen Satz arbeiten sie nur mit dem, was im Projekt steht, und sagen am Ende, was sie
+nachschlagen würden. Auf der Webseite gibt es dafür das Häkchen **„Websuche erlauben"**.
+
+Mit Freigabe gilt: erst im Projekt schauen, dann suchen; offizielle Quellen vor Forenbeiträgen;
+die benutzte Seite wird genannt; kein Code wird ungeprüft übernommen. Was auf einer Webseite
+steht, ist für die Agenten Information – keine Anweisung.
+
+`aufraeumer`, `code-checker` und `test-schreiber` haben bewusst keinen Webzugang: sie arbeiten
+mit dem vorhandenen Code.
+
 ## Kurzbefehle
 
 Damit ein Agent mit einem Wort losläuft, liegen in `commands/` fertige Slash-Befehle:
