@@ -58,6 +58,19 @@
     overflow-x: auto; border: 1px solid var(--line);
   }
   pre code { background: none; padding: 0; }
+  /* Wo baut wer */
+  .wo { margin-bottom: 8px; }
+  .wo h2 { margin-bottom: 14px; }
+  .wo-reihe { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .wo-feld {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .wo-feld h3 { margin: 0; font-size: 1rem; color: var(--accent); }
+  .wo-feld p { margin: 0; font-size: 0.92rem; color: var(--muted); }
+  .wo-feld .knopf { margin-top: auto; text-align: center; text-decoration: none; display: block; }
+  .wo-feld .hint { margin: 0; }
+
   /* Schnell-Aufgaben */
   .schnell { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
   .schnell button {
@@ -134,6 +147,30 @@
   </p>
 </header>
 
+<div class="wo">
+  <h2 style="margin-top:0">Wo baut wer?</h2>
+  <div class="wo-reihe">
+    <div class="wo-feld">
+      <h3>Werkbank</h3>
+      <p>Der Agent baut die Datei selbst und du speicherst sie – ohne etwas zu kopieren.</p>
+      <a class="knopf" href="https://claude.ai/code/artifact/e7633168-f2b4-4d2d-895b-bbf56c7afb46">Werkbank öffnen</a>
+      <p class="hint">Dafür musst du bei Claude angemeldet sein.</p>
+    </div>
+    <div class="wo-feld">
+      <h3>Diese Seite</h3>
+      <p>Fertige Startseite als <code>index.html</code> – direkt im Browser gebaut, ohne Claude.</p>
+      <a class="knopf neben" href="#vorlage">Zur HTML-Datei</a>
+      <p class="hint">Ganz ohne Anmeldung.</p>
+    </div>
+    <div class="wo-feld">
+      <h3>Claude Code</h3>
+      <p>Der Agent arbeitet an deinen echten Projektordnern: anlegen, ändern, prüfen.</p>
+      <a class="knopf neben" href="#eigene">Auftrag zusammenstellen</a>
+      <p class="hint">Für Arbeit an bestehenden Projekten.</p>
+    </div>
+  </div>
+</div>
+
 <h2>Schnell-Aufgaben</h2>
 <p style="color:var(--muted);margin-top:-6px">Ein Klick kopiert die Aufgabe – dann nur noch in Claude Code einfügen. Einen bestimmten Ordner kannst du unten im Baukasten eintragen.</p>
 <div class="schnell" id="schnell"></div>
@@ -143,7 +180,7 @@
 und arbeiten ihn Schritt für Schritt ab.</p>
 <div class="schnell" id="gross"></div>
 
-<h2>Eigene Aufgabe zusammenstellen</h2>
+<h2 id="eigene">Eigene Aufgabe zusammenstellen</h2>
 <p style="color:var(--muted);margin-top:-6px">Agent wählen, Aufgabe beschreiben, Befehl kopieren – und in Claude Code einfügen.</p>
 
 <div class="builder">
@@ -201,7 +238,7 @@ und arbeiten ihn Schritt für Schritt ab.</p>
   </div>
 </div>
 
-<h2>Fertige HTML-Datei</h2>
+<h2 id="vorlage">Fertige HTML-Datei</h2>
 <p style="color:var(--muted);margin-top:-6px">Eine vollständige Startseite als einzelne <code>index.html</code> – Aussehen, Handy-Ansicht und
 Dunkelmodus schon drin. Ansehen, herunterladen, doppelklicken. Zum Ändern gibst du sie dem
 <code>webseiten-bauer</code>.</p>
@@ -210,6 +247,27 @@ Dunkelmodus schon drin. Ansehen, herunterladen, doppelklicken. Zum Ändern gibst
   <div class="field">
     <label for="titel">Wie soll die Seite heissen?</label>
     <input id="titel" value="Mikkels Spiele" autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label for="untertitel">Satz unter dem Titel</label>
+    <input id="untertitel" value="Alles, was ich bisher gebaut habe – zum Anklicken und Ausprobieren." autocomplete="off">
+  </div>
+
+  <div class="field">
+    <label for="farbe">Farbe</label>
+    <select id="farbe">
+      <option value="c1440e|ff7a45">Orange</option>
+      <option value="1d4ed8|8f9dff">Blau</option>
+      <option value="15803d|4ade80">Grün</option>
+      <option value="7c3aed|c4b5fd">Violett</option>
+      <option value="be123c|fb7185">Rot</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="ueber">Abschnitt „Über mich“ <span style="font-weight:400;color:var(--muted)">(leer lassen, wenn du keinen willst)</span></label>
+    <textarea id="ueber" placeholder="z. B. Ich bin Mikkel und baue Spiele, die im Browser laufen."></textarea>
   </div>
 
   <div class="field" style="margin-bottom:0">
@@ -693,6 +751,9 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 
   const titelEl = document.getElementById("titel");
   const eintraegeEl = document.getElementById("eintraege");
+  const untertitelEl = document.getElementById("untertitel");
+  const farbeEl = document.getElementById("farbe");
+  const ueberEl = document.getElementById("ueber");
 
   function maskieren(text) {
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -711,6 +772,11 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 
   function vorlageBauen() {
     const titel = titelEl.value.trim() || "Meine Seite";
+    const untertitel = untertitelEl.value.trim();
+    const ueber = ueberEl.value.trim();
+    const farben = farbeEl.value.split("|");
+    const hell = farben[0];
+    const dunkel = farben[1];
     const kacheln = eintraegeLesen().map(e => {
       const inhalt =
         '      <h2>' + maskieren(e.name) + '</h2>\n' +
@@ -729,12 +795,12 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 '<style>\n' +
 '  :root {\n' +
 '    --grund: #f5f6f8; --karte: #ffffff; --schrift: #16181d;\n' +
-'    --leise: #5c6370; --linie: #e0e3e9; --akzent: #c1440e;\n' +
+'    --leise: #5c6370; --linie: #e0e3e9; --akzent: #' + hell + ';\n' +
 '  }\n' +
 '  @media (prefers-color-scheme: dark) {\n' +
 '    :root {\n' +
 '      --grund: #14161a; --karte: #1c1f25; --schrift: #e8eaed;\n' +
-'      --leise: #9aa1ad; --linie: #2c3039; --akzent: #ff7a45;\n' +
+'      --leise: #9aa1ad; --linie: #2c3039; --akzent: #' + dunkel + ';\n' +
 '    }\n' +
 '  }\n' +
 '  * { box-sizing: border-box; }\n' +
@@ -755,18 +821,29 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 '  a.karte:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }\n' +
 '  .karte h2 { font-size: 1.1rem; margin: 0 0 6px; color: var(--akzent); }\n' +
 '  .karte p { margin: 0; color: var(--leise); font-size: 0.94rem; }\n' +
+'  .ueber { margin-top: 40px; }\n' +
+'  .ueber h2 { font-size: 1.15rem; margin: 0 0 8px; }\n' +
+'  .ueber p { margin: 0 0 8px; color: var(--leise); max-width: 60ch; }\n' +
 '  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--linie); color: var(--leise); font-size: 0.88rem; }\n' +
 '</style>\n' +
 '</head>\n' +
 '<body>\n' +
 '  <div class="seite">\n' +
 '    <h1>' + maskieren(titel) + '</h1>\n' +
-'    <p class="unter">Alles, was ich bisher gebaut habe – zum Anklicken und Ausprobieren.</p>\n' +
+(untertitel ? '    <p class="unter">' + maskieren(untertitel) + '</p>\n' : '') +
 '\n' +
 '    <div class="karten">\n' +
 kacheln + '\n' +
 '    </div>\n' +
 '\n' +
+(ueber
+  ? '    <section class="ueber">\n' +
+    '      <h2>Über mich</h2>\n' +
+    ueber.split("\n").map(z => z.trim()).filter(Boolean)
+         .map(z => '      <p>' + maskieren(z) + '</p>\n').join("") +
+    '    </section>\n' +
+    '\n'
+  : '') +
 '    <footer>Gebaut mit HTML, CSS und JavaScript.</footer>\n' +
 '  </div>\n' +
 '</body>\n' +
