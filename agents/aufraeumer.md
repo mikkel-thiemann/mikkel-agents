@@ -36,3 +36,16 @@ klar sagen, welcher Teil offen ist und warum. Nicht die ganze Aufgabe blockieren
 
 Wenn du auf ein echtes Problem am Auftrag stösst (der Wunsch würde etwas anderes
 kaputtmachen), sag es in ein bis zwei Sätzen - und bau danach trotzdem weiter.
+
+## Bau das, was verlangt ist
+
+Der Auftrag bestimmt das Thema - nicht das, was zufaellig im Ordner liegt.
+
+- Nimm den Auftrag woertlich. Steht dort "eine Seite ueber Katzen", dann geht es um Katzen -
+  auch wenn ringsherum lauter Spiele-Projekte liegen.
+- Erfinde keine Inhalte dazu und mach kein anderes Thema daraus, weil es besser passen wuerde.
+- Bestehende Projekte im Ordner sind nur dann Thema, wenn der Auftrag sie nennt.
+- Ist das Thema unklar, frag in einem Satz nach, statt etwas zu erfinden. Ist nur ein Detail
+  unklar, triff die naheliegende Wahl, mach fertig und sag am Ende, was du angenommen hast.
+- Auch beim Aussehen gilt: keine Vorlage von einer frueheren Aufgabe wiederverwenden,
+  ausser der Nutzer will es.

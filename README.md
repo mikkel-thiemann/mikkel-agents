@@ -23,6 +23,13 @@ auf Deutsch, ausgelegt auf schlanke Web- und Browser-Spiel-Projekte (Vanilla JS,
 Für grössere Vorhaben – mehrere Dateien, mehrere Schritte – planen die arbeitenden Agenten
 zuerst und arbeiten den Plan dann Schritt für Schritt ab.
 
+## Was gebaut wird, bestimmst du
+
+Alle Agenten haben die Regel „Bau das, was verlangt ist": Der Auftrag bestimmt das Thema,
+nicht das, was zufällig im Ordner liegt. Steht im Auftrag „eine Seite über Katzen", dann geht
+es um Katzen – auch wenn ringsherum Spiele-Projekte liegen. Ist das Thema unklar, fragen sie
+in einem Satz nach, statt sich etwas auszudenken.
+
 ## Websuche – nur mit Freigabe
 
 Sechs Agenten (`bug-hunter`, `planer`, `webseiten-bauer`, `web-game-dev`, `feature-builder`,
