@@ -34,8 +34,10 @@ in einem Satz nach, statt sich etwas auszudenken.
 ## Vorlage mit Wikipedia-Daten
 
 Der Vorlage-Bereich der Webseite holt auf Wunsch Inhalt aus der deutschen Wikipedia: Thema
-eintippen, „Aus Wikipedia füllen" – Titel, Kurzbeschreibung, Einleitungstext und vier
-thematisch verwandte Artikel als Kacheln werden übernommen. Die Quelle mit Abrufdatum und der
+eintippen, „Aus Wikipedia füllen" – übernommen werden Titel, Kurzbeschreibung, Einleitung,
+**bis zu acht Abschnitte aus dem Artikel** mit echtem Fliesstext und vier thematisch verwandte
+Artikel als Kacheln. Der passende Artikel wird vorher gesucht, damit „Hai" auf *Haie* führt und
+nicht auf eine Abkürzungsseite. Die Quelle mit Abrufdatum und der
 Lizenzhinweis (CC BY-SA 4.0) stehen danach automatisch auf der erzeugten Seite.
 
 Das läuft direkt im Browser über die offene Wikipedia-Schnittstelle – ohne Anmeldung, ohne

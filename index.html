@@ -819,6 +819,35 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
   const wikiMeldungEl = document.getElementById("wiki-meldung");
   // Wird gesetzt, sobald Inhalt aus Wikipedia kommt - landet als Quelle auf der Seite.
   let wikiQuelle = null;
+  // Die Abschnitte des Artikels: [{titel, absaetze:[...]}]
+  let wikiAbschnitte = [];
+
+  // Abschnitte, die auf einer Infoseite nichts verloren haben.
+  const UNERWUENSCHT = /^(siehe auch|literatur|weblinks|einzelnachweise|quellen|anmerkungen|fussnoten|fußnoten)$/i;
+
+  // Der Fliesstext der API kommt als "== Titel ==" plus Absaetze - daraus Abschnitte machen.
+  function abschnitteLesen(text) {
+    const abschnitte = [];
+    let aktuell = null;
+    for (const zeile of text.split("\n")) {
+      const roh = zeile.trim();
+      if (!roh) continue;
+      const ueberschrift = roh.match(/^(=+)\s*(.+?)\s*=+$/);
+      if (ueberschrift) {
+        // Nur Hauptabschnitte (==) werden zu eigenen Kapiteln, Unterabschnitte laufen mit.
+        if (ueberschrift[1].length === 2) {
+          aktuell = { titel: ueberschrift[2], absaetze: [] };
+          abschnitte.push(aktuell);
+        }
+        continue;
+      }
+      if (aktuell && roh.length > 60) aktuell.absaetze.push(roh);
+    }
+    return abschnitte
+      .filter(a => !UNERWUENSCHT.test(a.titel) && a.absaetze.length)
+      .slice(0, 8)
+      .map(a => ({ titel: a.titel, absaetze: a.absaetze.slice(0, 3) }));
+  }
 
   function heute() {
     const d = new Date();
@@ -837,24 +866,54 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
     wikiMeldungEl.textContent = "Hole Daten aus Wikipedia …";
 
     try {
+      // Erst den passenden Artikel suchen lassen: "Hai" fuehrt sonst auf die Abkuerzungsseite.
+      let artikel = thema;
+      try {
+        const treffer = await fetch(
+          "https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=" +
+          encodeURIComponent(thema) + "&srlimit=1&format=json&origin=*"
+        );
+        const gefunden = await treffer.json();
+        const erster = (((gefunden.query || {}).search || [])[0] || {}).title;
+        if (erster) artikel = erster;
+      } catch (e) {
+        // Ohne Suche wird direkt der eingetippte Name versucht.
+      }
+
       const antwort = await fetch(
-        "https://de.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(thema),
+        "https://de.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(artikel),
         { headers: { accept: "application/json" } }
       );
       if (antwort.status === 404) throw new Error("nicht gefunden");
       if (!antwort.ok) throw new Error("Fehler " + antwort.status);
       const seite = await antwort.json();
 
-      titelEl.value = seite.title || thema;
+      titelEl.value = seite.title || artikel;
       if (seite.description) untertitelEl.value = seite.description;
       if (seite.extract) ueberEl.value = seite.extract;
 
       wikiQuelle = {
-        titel: seite.title || thema,
+        titel: seite.title || artikel,
         adresse: (seite.content_urls && seite.content_urls.desktop && seite.content_urls.desktop.page)
-          || "https://de.wikipedia.org/wiki/" + encodeURIComponent(thema),
+          || "https://de.wikipedia.org/wiki/" + encodeURIComponent(artikel),
         abgerufen: heute()
       };
+
+      // Den ganzen Artikel holen und in Abschnitte zerlegen.
+      wikiAbschnitte = [];
+      try {
+        const voll = await fetch(
+          "https://de.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1" +
+          "&exsectionformat=wiki&redirects=1&titles=" +
+          encodeURIComponent(seite.title || artikel) + "&format=json&origin=*"
+        );
+        const rohdaten = await voll.json();
+        const seiten = ((rohdaten.query || {}).pages) || {};
+        const erste = Object.keys(seiten).length ? seiten[Object.keys(seiten)[0]] : null;
+        if (erste && erste.extract) wikiAbschnitte = abschnitteLesen(erste.extract);
+      } catch (e) {
+        // Ohne die Abschnitte bleibt die Einleitung - das reicht auch.
+      }
 
       // Verwandte Artikel als Kacheln vorschlagen - nur, wenn noch nichts drinsteht.
       let kacheln = 0;
@@ -863,15 +922,19 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
           // "morelike" liefert thematisch verwandte Artikel statt blosser Namenstreffer.
           const suche = await fetch(
             "https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=" +
-            encodeURIComponent("morelike:" + (seite.title || thema)) + "&srlimit=5&format=json&origin=*"
+            encodeURIComponent("morelike:" + (seite.title || artikel)) + "&srlimit=5&format=json&origin=*"
           );
           const daten = await suche.json();
           const treffer = ((daten.query || {}).search || [])
-            .filter(t => t.title !== (seite.title || thema))
+            .filter(t => t.title !== (seite.title || artikel))
             .slice(0, 4);
           eintraegeEl.value = treffer.map(t => {
             const text = String(t.snippet || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
-            return t.title + " | " + text.slice(0, 90) +
+            // Am letzten ganzen Wort abschneiden, damit kein Wortfragment stehen bleibt.
+            const kurz = text.length > 90
+              ? text.slice(0, 90).replace(/\s+\S*$/, "") + " …"
+              : text;
+            return t.title + " | " + kurz +
               " | https://de.wikipedia.org/wiki/" + encodeURIComponent(t.title.replace(/ /g, "_"));
           }).join("\n");
           kacheln = treffer.length;
@@ -880,11 +943,13 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
         }
       }
 
-      wikiMeldungEl.textContent = "„" + wikiQuelle.titel + "“ übernommen" +
+      wikiMeldungEl.textContent = "„" + wikiQuelle.titel + "“ übernommen · " +
+        (wikiAbschnitte.length ? wikiAbschnitte.length + " Abschnitte aus dem Artikel" : "nur die Einleitung") +
         (kacheln ? " · " + kacheln + " verwandte Artikel als Kacheln" : "") +
         " · Quelle kommt auf die Seite.";
     } catch (e) {
       wikiQuelle = null;
+      wikiAbschnitte = [];
       wikiMeldungEl.textContent = String(e.message) === "nicht gefunden"
         ? "Zu „" + thema + "“ gibt es keinen Wikipedia-Artikel unter diesem Namen. Anders schreiben, z. B. Einzahl statt Mehrzahl."
         : "Die Daten liessen sich nicht laden – bist du online? Du kannst die Felder auch selbst ausfüllen.";
@@ -947,9 +1012,10 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 '  a.karte:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }\n' +
 '  .karte h2 { font-size: 1.1rem; margin: 0 0 6px; color: var(--akzent); }\n' +
 '  .karte p { margin: 0; color: var(--leise); font-size: 0.94rem; }\n' +
-'  .ueber { margin-top: 40px; }\n' +
-'  .ueber h2 { font-size: 1.15rem; margin: 0 0 8px; }\n' +
-'  .ueber p { margin: 0 0 8px; color: var(--leise); max-width: 60ch; }\n' +
+'  .ueber, .kapitel { margin-top: 40px; }\n' +
+'  .ueber h2, .kapitel h2 { font-size: 1.15rem; margin: 0 0 8px; }\n' +
+'  .ueber p, .kapitel p { margin: 0 0 12px; color: var(--leise); max-width: 65ch; }\n' +
+'  .kapitel h2 { color: var(--akzent); }\n' +
 '  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--linie); color: var(--leise); font-size: 0.88rem; }\n' +
 '  footer a { color: var(--akzent); }\n' +
 '</style>\n' +
@@ -971,6 +1037,13 @@ kacheln + '\n' +
     '    </section>\n' +
     '\n'
   : '') +
+wikiAbschnitte.map(a =>
+  '    <section class="kapitel">\n' +
+  '      <h2>' + maskieren(a.titel) + '</h2>\n' +
+  a.absaetze.map(z => '      <p>' + maskieren(z) + '</p>\n').join("") +
+  '    </section>\n' +
+  '\n'
+).join("") +
 '    <footer>' +
 (wikiQuelle
   ? 'Quelle: <a href="' + maskieren(wikiQuelle.adresse) + '">Wikipedia, Artikel &bdquo;' +
