@@ -19,6 +19,7 @@ auf Deutsch, ausgelegt auf schlanke Web- und Browser-Spiel-Projekte (Vanilla JS,
 | **aufraeumer** | Refactoring bei exakt gleichem Verhalten. |
 | **planer** | Zerlegt grosse Vorhaben in Schritte, bevor gebaut wird. |
 | **test-schreiber** | Schreibt Tests, die echte Fehler finden, und lässt sie laufen. |
+| **rechercheur** | Sucht im Web und liefert geprüfte Daten mit Quellen – ohne Code zu schreiben. |
 
 Für grössere Vorhaben – mehrere Dateien, mehrere Schritte – planen die arbeitenden Agenten
 zuerst und arbeiten den Plan dann Schritt für Schritt ab.
@@ -64,6 +65,7 @@ Damit ein Agent mit einem Wort losläuft, liegen in `commands/` fertige Slash-Be
 | `/aufraeumen` | aufraeumer |
 | `/planen` | planer |
 | `/testen` | test-schreiber |
+| `/recherche` | rechercheur |
 
 Beispiel: `/bauen eine Startseite für meine Spiele in senna` – der Agent legt die Dateien
 wirklich an, statt nur einen Vorschlag zu zeigen.

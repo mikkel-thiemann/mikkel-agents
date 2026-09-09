@@ -63,7 +63,10 @@ Adresse genannt, die du lesen sollst.
 nachschlagen, mach den Rest trotzdem fertig und sag am Ende in einem Satz, was du nachschauen
 wuerdest und warum. Frag nicht mitten in der Arbeit.
 
-**Mit Freigabe - und dann nur zum Thema des Auftrags:**
+**Mit Freigabe: dann such auch wirklich - und nur zum Thema des Auftrags.**
+Eine Freigabe ist ein Auftrag, nicht bloss eine Erlaubnis: Wenn es um Sachangaben geht
+(Zahlen, Daten, Fakten, aktuelle Versionen), schlag sie nach, statt sie aus dem Gedaechtnis
+zu schreiben. Und schreib die gefundenen Angaben mit Quelle in dein Ergebnis.
 - **Suche ausschliesslich nach dem, worum es im Auftrag geht.** Deine Suchbegriffe kommen aus
   der Aufgabe. Geht es um Vulkane, suchst du zu Vulkanen - nicht zu anderen Projekten im
   Ordner, nicht zu Themen, die dir nebenbei einfallen.
