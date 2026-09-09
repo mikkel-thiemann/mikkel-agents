@@ -31,6 +31,16 @@ nicht das, was zufällig im Ordner liegt. Steht im Auftrag „eine Seite über K
 es um Katzen – auch wenn ringsherum Spiele-Projekte liegen. Ist das Thema unklar, fragen sie
 in einem Satz nach, statt sich etwas auszudenken.
 
+## Vorlage mit Wikipedia-Daten
+
+Der Vorlage-Bereich der Webseite holt auf Wunsch Inhalt aus der deutschen Wikipedia: Thema
+eintippen, „Aus Wikipedia füllen" – Titel, Kurzbeschreibung, Einleitungstext und vier
+thematisch verwandte Artikel als Kacheln werden übernommen. Die Quelle mit Abrufdatum und der
+Lizenzhinweis (CC BY-SA 4.0) stehen danach automatisch auf der erzeugten Seite.
+
+Das läuft direkt im Browser über die offene Wikipedia-Schnittstelle – ohne Anmeldung, ohne
+Schlüssel, ohne Server.
+
 ## Websuche – nur mit Freigabe
 
 Sechs Agenten (`bug-hunter`, `planer`, `webseiten-bauer`, `web-game-dev`, `feature-builder`,

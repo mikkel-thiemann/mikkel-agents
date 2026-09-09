@@ -265,6 +265,12 @@ oder in Claude Code den Kurzbefehl <code>/bauen</code>.</p>
   <div class="field">
     <label for="titel">Wie soll die Seite heissen?</label>
     <input id="titel" placeholder="z. B. Vulkane" autocomplete="off">
+    <div class="knopfreihe" style="margin-top:10px">
+      <input id="wiki-thema" placeholder="Thema aus Wikipedia holen, z. B. Vulkan" autocomplete="off" style="flex:1;min-width:200px">
+      <button class="knopf neben" id="wiki-holen" type="button">Aus Wikipedia füllen</button>
+    </div>
+    <p class="hint" id="wiki-meldung">Holt Titel, Einleitungstext und verwandte Artikel aus der deutschen Wikipedia –
+    direkt in deinem Browser, ohne Anmeldung. Die Quelle steht danach automatisch auf der fertigen Seite.</p>
   </div>
 
   <div class="field">
@@ -806,6 +812,90 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
       });
   }
 
+  // --- Inhalt aus Wikipedia holen -------------------------------------------
+
+  const wikiThemaEl = document.getElementById("wiki-thema");
+  const wikiHolenEl = document.getElementById("wiki-holen");
+  const wikiMeldungEl = document.getElementById("wiki-meldung");
+  // Wird gesetzt, sobald Inhalt aus Wikipedia kommt - landet als Quelle auf der Seite.
+  let wikiQuelle = null;
+
+  function heute() {
+    const d = new Date();
+    return String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + d.getFullYear();
+  }
+
+  async function wikiHolen() {
+    const thema = wikiThemaEl.value.trim();
+    if (!thema) {
+      wikiMeldungEl.textContent = "Bitte zuerst ein Thema eintippen.";
+      wikiThemaEl.focus();
+      return;
+    }
+
+    wikiHolenEl.disabled = true;
+    wikiMeldungEl.textContent = "Hole Daten aus Wikipedia …";
+
+    try {
+      const antwort = await fetch(
+        "https://de.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(thema),
+        { headers: { accept: "application/json" } }
+      );
+      if (antwort.status === 404) throw new Error("nicht gefunden");
+      if (!antwort.ok) throw new Error("Fehler " + antwort.status);
+      const seite = await antwort.json();
+
+      titelEl.value = seite.title || thema;
+      if (seite.description) untertitelEl.value = seite.description;
+      if (seite.extract) ueberEl.value = seite.extract;
+
+      wikiQuelle = {
+        titel: seite.title || thema,
+        adresse: (seite.content_urls && seite.content_urls.desktop && seite.content_urls.desktop.page)
+          || "https://de.wikipedia.org/wiki/" + encodeURIComponent(thema),
+        abgerufen: heute()
+      };
+
+      // Verwandte Artikel als Kacheln vorschlagen - nur, wenn noch nichts drinsteht.
+      let kacheln = 0;
+      if (!eintraegeEl.value.trim()) {
+        try {
+          // "morelike" liefert thematisch verwandte Artikel statt blosser Namenstreffer.
+          const suche = await fetch(
+            "https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=" +
+            encodeURIComponent("morelike:" + (seite.title || thema)) + "&srlimit=5&format=json&origin=*"
+          );
+          const daten = await suche.json();
+          const treffer = ((daten.query || {}).search || [])
+            .filter(t => t.title !== (seite.title || thema))
+            .slice(0, 4);
+          eintraegeEl.value = treffer.map(t => {
+            const text = String(t.snippet || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+            return t.title + " | " + text.slice(0, 90) +
+              " | https://de.wikipedia.org/wiki/" + encodeURIComponent(t.title.replace(/ /g, "_"));
+          }).join("\n");
+          kacheln = treffer.length;
+        } catch (e) {
+          // Suche ist nur Zugabe - ohne sie geht es auch.
+        }
+      }
+
+      wikiMeldungEl.textContent = "„" + wikiQuelle.titel + "“ übernommen" +
+        (kacheln ? " · " + kacheln + " verwandte Artikel als Kacheln" : "") +
+        " · Quelle kommt auf die Seite.";
+    } catch (e) {
+      wikiQuelle = null;
+      wikiMeldungEl.textContent = String(e.message) === "nicht gefunden"
+        ? "Zu „" + thema + "“ gibt es keinen Wikipedia-Artikel unter diesem Namen. Anders schreiben, z. B. Einzahl statt Mehrzahl."
+        : "Die Daten liessen sich nicht laden – bist du online? Du kannst die Felder auch selbst ausfüllen.";
+    } finally {
+      wikiHolenEl.disabled = false;
+    }
+  }
+
+  wikiHolenEl.addEventListener("click", wikiHolen);
+  wikiThemaEl.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); wikiHolen(); } });
+
   function vorlageBauen() {
     const titel = titelEl.value.trim() || "Meine Seite";
     const untertitel = untertitelEl.value.trim();
@@ -861,6 +951,7 @@ Der Systemprompt des Agenten: Rolle, Vorgehen, Regeln.</code></pre>
 '  .ueber h2 { font-size: 1.15rem; margin: 0 0 8px; }\n' +
 '  .ueber p { margin: 0 0 8px; color: var(--leise); max-width: 60ch; }\n' +
 '  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--linie); color: var(--leise); font-size: 0.88rem; }\n' +
+'  footer a { color: var(--akzent); }\n' +
 '</style>\n' +
 '</head>\n' +
 '<body>\n' +
@@ -874,13 +965,19 @@ kacheln + '\n' +
 '\n' +
 (ueber
   ? '    <section class="ueber">\n' +
-    '      <h2>Über mich</h2>\n' +
+    '      <h2>' + (wikiQuelle ? 'Kurz erklärt' : 'Über mich') + '</h2>\n' +
     ueber.split("\n").map(z => z.trim()).filter(Boolean)
          .map(z => '      <p>' + maskieren(z) + '</p>\n').join("") +
     '    </section>\n' +
     '\n'
   : '') +
-'    <footer>Gebaut mit HTML, CSS und JavaScript.</footer>\n' +
+'    <footer>' +
+(wikiQuelle
+  ? 'Quelle: <a href="' + maskieren(wikiQuelle.adresse) + '">Wikipedia, Artikel &bdquo;' +
+    maskieren(wikiQuelle.titel) + '&ldquo;</a>, abgerufen am ' + wikiQuelle.abgerufen +
+    ' &middot; Text unter <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de">CC BY-SA 4.0</a>. '
+  : '') +
+'Gebaut mit HTML, CSS und JavaScript.</footer>\n' +
 '  </div>\n' +
 '</body>\n' +
 '</html>\n';
