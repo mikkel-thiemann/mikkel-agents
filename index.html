@@ -253,20 +253,23 @@ und arbeiten ihn Schritt für Schritt ab.</p>
   </div>
 </div>
 
-<h2 id="vorlage">Fertige HTML-Datei</h2>
-<p style="color:var(--muted);margin-top:-6px">Eine vollständige Startseite als einzelne <code>index.html</code> – Aussehen, Handy-Ansicht und
-Dunkelmodus schon drin. Ansehen, herunterladen, doppelklicken. Zum Ändern gibst du sie dem
-<code>webseiten-bauer</code>.</p>
+<h2 id="vorlage">Vorlage zum Selberausfüllen</h2>
+<p style="color:var(--muted);margin-top:-6px"><strong>Hier arbeitet kein Agent.</strong> Das ist eine Vorlage: Was du hier einträgst, steht
+nachher auf der Seite – Titel oben, darunter deine Einträge als Kacheln. Das Thema ist frei,
+Vulkane genauso wie Spiele. Aussehen, Handy-Ansicht und Dunkelmodus sind schon drin.</p>
+<p style="color:var(--muted)">Du willst stattdessen, dass ein Agent die Seite <em>selbst</em> schreibt – mit Texten, die er
+sich ausdenkt oder nachschlägt? Dann nimm die <a href="https://claude.ai/code/artifact/e7633168-f2b4-4d2d-895b-bbf56c7afb46">Werkbank</a>
+oder in Claude Code den Kurzbefehl <code>/bauen</code>.</p>
 
 <div class="builder">
   <div class="field">
     <label for="titel">Wie soll die Seite heissen?</label>
-    <input id="titel" value="Mikkels Spiele" autocomplete="off">
+    <input id="titel" placeholder="z. B. Vulkane" autocomplete="off">
   </div>
 
   <div class="field">
     <label for="untertitel">Satz unter dem Titel</label>
-    <input id="untertitel" value="Alles, was ich bisher gebaut habe – zum Anklicken und Ausprobieren." autocomplete="off">
+    <input id="untertitel" placeholder="z. B. Wie Vulkane entstehen und warum sie ausbrechen" autocomplete="off">
   </div>
 
   <div class="field">
@@ -287,9 +290,10 @@ Dunkelmodus schon drin. Ansehen, herunterladen, doppelklicken. Zum Ändern gibst
 
   <div class="field" style="margin-bottom:0">
     <label for="eintraege">Was steht drauf? <span style="font-weight:400;color:var(--muted)">(eine Zeile pro Kachel: Name | Beschreibung | Link)</span></label>
-    <textarea id="eintraege" spellcheck="false">MikkelRacer | Rennspiel im Browser | https://mikkel-thiemann.github.io/MikkelRacer/
-Voxel-Galaxie | Klötzchenwelt in 3D | https://mikkel-thiemann.github.io/starwars-voxel-world/
-Weltenkämpfer | Kampf durch die Welten | https://mikkel-thiemann.github.io/weltenkaempfer/</textarea>
+    <textarea id="eintraege" spellcheck="false" placeholder="Vulkane | Wie sie entstehen und ausbrechen&#10;Mein Hund | Ein Border Collie namens Filou&#10;Kontakt | Schreib mir | mailto:du@beispiel.ch"></textarea>
+    <div class="knopfreihe" style="margin-top:10px">
+      <button class="knopf neben" id="beispiel-spiele" type="button">Meine Spiele eintragen</button>
+    </div>
     <div class="knopfreihe" style="margin-top:12px">
       <button class="knopf" id="vorlage-laden">Als index.html herunterladen</button>
       <button class="knopf neben" id="vorlage-ansehen">Ansehen</button>
@@ -881,6 +885,18 @@ kacheln + '\n' +
 '</body>\n' +
 '</html>\n';
   }
+
+  document.getElementById("beispiel-spiele").addEventListener("click", () => {
+    titelEl.value = "Mikkels Spiele";
+    untertitelEl.value = "Alles, was ich bisher gebaut habe – zum Anklicken und Ausprobieren.";
+    eintraegeEl.value = [
+      "MikkelRacer | Rennspiel im Browser | https://mikkel-thiemann.github.io/MikkelRacer/",
+      "Voxel-Galaxie | Klötzchenwelt in 3D | https://mikkel-thiemann.github.io/voxel-galaxie/",
+      "Weltenkämpfer | Kampf durch die Welten | https://mikkel-thiemann.github.io/weltenkaempfer/",
+      "SwissSMP | Die Seite zum Minecraft-Server | https://mikkel-thiemann.github.io/swiss-smp/"
+    ].join("\n");
+    eintraegeEl.focus();
+  });
 
   document.getElementById("vorlage-laden").addEventListener("click", () => {
     const datei = new Blob([vorlageBauen()], { type: "text/html;charset=utf-8" });
